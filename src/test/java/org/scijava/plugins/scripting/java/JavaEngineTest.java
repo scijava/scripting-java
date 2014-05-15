@@ -183,7 +183,6 @@ public class JavaEngineTest {
 		miniMaven.put(ScriptEngine.FILENAME, file.getPath());
 		final ScriptContext context = miniMaven.getContext();
 		context.setWriter(new OutputStreamWriter(System.out));
-		context.setErrorWriter(new OutputStreamWriter(System.err));
 		miniMaven.eval((Reader) null);
 		return miniMaven;
 	}

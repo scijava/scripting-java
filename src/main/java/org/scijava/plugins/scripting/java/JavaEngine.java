@@ -31,10 +31,6 @@
 
 package org.scijava.plugins.scripting.java;
 
-import imagej.build.minimaven.BuildEnvironment;
-import imagej.build.minimaven.Coordinate;
-import imagej.build.minimaven.MavenProject;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +39,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
@@ -69,6 +66,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.scijava.command.Command;
 import org.scijava.command.CommandInfo;
 import org.scijava.command.CommandService;
+import org.scijava.minimaven.BuildEnvironment;
+import org.scijava.minimaven.Coordinate;
+import org.scijava.minimaven.MavenProject;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.plugin.PluginService;
@@ -108,38 +108,168 @@ public class JavaEngine extends AbstractScriptEngine {
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
-		File temporaryDirectory = null;
-		final Writer writer = getContext().getErrorWriter();
-		final PrintStream err;
-		if (writer == null) {
-			err = null;
-		} else {
-			err = new PrintStream(new LineOutputStream() {
+		final String path = (String)get(FILENAME);
+		File file = path == null ? null : new File(path);
 
-				@Override
-				public void println(final String line) throws IOException {
-					writer.append(line).append('\n');
+		final Writer writer = getContext().getErrorWriter();
+		try {
+			final Builder builder = new Builder(file, reader, writer);
+			final MavenProject project = builder.project;
+			String mainClass = builder.mainClass;
+
+			try {
+				project.build(true);
+				if (mainClass == null) {
+					mainClass = project.getMainClass();
+					if (mainClass == null) {
+						throw new ScriptException(
+								"No main class found for file " + file);
+					}
 				}
 
-			});
-		}
+				// make class loader
+				String[] paths = project.getClassPath(false).split(
+						File.pathSeparator);
+				URL[] urls = new URL[paths.length];
+				for (int i = 0; i < urls.length; i++)
+					urls[i] = new URL("file:" + paths[i]
+							+ (paths[i].endsWith(".jar") ? "" : "/"));
+				URLClassLoader classLoader = new URLClassLoader(urls,
+						getClass().getClassLoader());
 
+				// needed for sezpoz
+				Thread.currentThread().setContextClassLoader(classLoader);
+
+				// launch main class
+				final Class<?> clazz = classLoader.loadClass(mainClass);
+				if (Command.class.isAssignableFrom(clazz)) {
+					final Plugin annotation = clazz.getAnnotation(Plugin.class);
+					final CommandInfo info = new CommandInfo(mainClass,
+							annotation) {
+
+						@Override
+						public Class<? extends Command> loadClass() {
+							return (Class<? extends Command>) clazz;
+						}
+					};
+					pluginService.addPlugin(info);
+					commandService.run(info, true);
+				} else {
+					Method main = clazz.getMethod("main",
+							new Class[] { String[].class });
+					main.invoke(null, new Object[] { new String[0] });
+				}
+			} finally {
+				builder.cleanup();
+			}
+		} catch (Exception e) {
+			if (writer != null) {
+				final PrintWriter err = new PrintWriter(writer);
+				e.printStackTrace(err);
+				err.flush();
+			} else {
+				if (e instanceof ScriptException)
+					throw (ScriptException) e;
+				throw new ScriptException(e);
+			}
+		}
+		return null;
+	}
+
+	public void compile(final File file, final Writer errorWriter) {
 		try {
+			final Builder builder = new Builder(file, null, errorWriter);
+			try {
+				builder.project.build();
+			} finally {
+				builder.cleanup();
+			}
+		} catch (Throwable t) {
+			printOrThrow(t, errorWriter);
+		}
+	}
+
+	public void makeJar(final File file, final boolean includeSources, final File output, final Writer errorWriter) {
+		try {
+			final Builder builder = new Builder(file, null, errorWriter);
+			try {
+				builder.project.build(true, true, includeSources);
+				final File target = builder.project.getTarget();
+				if (output != null && !target.equals(output)) {
+					BuildEnvironment.copyFile(target, output);
+				}
+			} finally {
+				builder.cleanup();
+			}
+		} catch (Throwable t) {
+			printOrThrow(t, errorWriter);
+		}
+	}
+
+	private void printOrThrow(Throwable t, Writer errorWriter) {
+		RuntimeException e = t instanceof RuntimeException ? (RuntimeException) t
+				: new RuntimeException(t);
+		if (errorWriter == null) {
+			throw e;
+		}
+		final PrintWriter err = new PrintWriter(errorWriter);
+		e.printStackTrace(err);
+		err.flush();
+	}
+
+	private class Builder {
+		private final PrintStream err;
+		private final File temporaryDirectory;
+		private String mainClass;
+		private MavenProject project;
+
+		/**
+		 * Constructs a wrapper around a possibly temporary project.
+		 * 
+		 * @param file the {@code .java} file to build (or null, if {@code reader} is set).
+		 * @param reader provides the Java source if {@code file} is {@code null} 
+		 * @param errorWriter where to write the error output.
+		 * @throws ScriptException
+		 * @throws IOException
+		 * @throws ParserConfigurationException
+		 * @throws SAXException
+		 * @throws TransformerConfigurationException
+		 * @throws TransformerException
+		 * @throws TransformerFactoryConfigurationError
+		 */
+		private Builder(final File file, final Reader reader,
+				final Writer errorWriter) throws ScriptException, IOException,
+				ParserConfigurationException, SAXException,
+				TransformerConfigurationException, TransformerException,
+				TransformerFactoryConfigurationError {
+			if (errorWriter == null) {
+				err = null;
+			} else {
+				err = new PrintStream(new LineOutputStream() {
+
+					@Override
+					public void println(final String line) throws IOException {
+						errorWriter.append(line).append('\n');
+					}
+
+				});
+			}
+
 			boolean verbose = "true".equals(get("verbose"));
 			boolean debug = "true".equals(get("debug"));
-			BuildEnvironment env = new BuildEnvironment(err, true, verbose, debug);
-			final MavenProject project;
-			String mainClass = null;
+			BuildEnvironment env = new BuildEnvironment(err, true, verbose,
+					debug);
 
-			final String path = (String)get(FILENAME);
-			File file = path == null ? null : new File(path);
-			if (file == null || !file.exists()) try {
-				project = writeTemporaryProject(env, reader);
-				temporaryDirectory = project.getDirectory();
-				mainClass = project.getMainClass();
-			} catch (Exception e) {
-				throw new ScriptException(e);
-			} else {
+			if (file == null || !file.exists())
+				try {
+					project = writeTemporaryProject(env, reader);
+					temporaryDirectory = project.getDirectory();
+					mainClass = project.getMainClass();
+				} catch (Exception e) {
+					throw new ScriptException(e);
+				}
+			else {
+				temporaryDirectory = null;
 				if (file.getName().equals("pom.xml")) {
 					project = env.parse(file, null);
 				} else {
@@ -147,53 +277,18 @@ public class JavaEngine extends AbstractScriptEngine {
 					project = getMavenProject(env, file, mainClass);
 				}
 			}
+		}
 
-			project.build(true);
-			if (mainClass == null) {
-				mainClass = project.getMainClass();
-				if (mainClass == null) {
-					throw new ScriptException("No main class found for file " + file);
-				}
-			}
-
-			// make class loader
-			String[] paths = project.getClassPath(false).split(File.pathSeparator);
-			URL[] urls = new URL[paths.length];
-			for (int i = 0; i < urls.length; i++)
-				urls[i] = new URL("file:" + paths[i] + (paths[i].endsWith(".jar") ? "" : "/"));
-			URLClassLoader classLoader = new URLClassLoader(urls, getClass().getClassLoader());
-
-			// needed for sezpoz
-			Thread.currentThread().setContextClassLoader(classLoader);
-
-			// launch main class
-			final Class<?> clazz = classLoader.loadClass(mainClass);
-			if (Command.class.isAssignableFrom(clazz)) {
-				final Plugin annotation = clazz.getAnnotation(Plugin.class);
-				final CommandInfo info = new CommandInfo(mainClass, annotation) {
-
-					@Override
-					public Class<? extends Command> loadClass() {
-						return (Class<? extends Command>) clazz;
-					}
-				};
-				pluginService.addPlugin(info);
-				commandService.run(info, true);
-			} else {
-				Method main = clazz.getMethod("main", new Class[] { String[].class });
-				main.invoke(null, new Object[] { new String[0] });
-			}
-		} catch (Exception e) {
-			if (err != null) err.close();
-			if (e instanceof ScriptException) throw (ScriptException)e;
-			throw new ScriptException(e);
-		} finally {
-			if (err != null) err.close();
-			if (temporaryDirectory != null && !FileUtils.deleteRecursively(temporaryDirectory)) {
+		private void cleanup() {
+			if (err != null)
+				err.close();
+			if (err != null)
+				err.close();
+			if (temporaryDirectory != null
+					&& !FileUtils.deleteRecursively(temporaryDirectory)) {
 				temporaryDirectory.deleteOnExit();
 			}
 		}
-		return null;
 	}
 
 	private MavenProject getMavenProject(final BuildEnvironment env,
@@ -208,7 +303,7 @@ public class JavaEngine extends AbstractScriptEngine {
 		path = path.substring(0, path.length() - mainClass.length() - 5);
 		if (path.replace(File.separatorChar, '/').endsWith("/src/main/java/")) {
 			path = path.substring(0, path.length() - "src/main/java/".length());
-			final File pom = new File(path + "pom.xml");
+			final File pom = new File(path, "pom.xml");
 			if (pom.exists()) return env.parse(pom, null);
 		}
 		final File rootDirectory = file.getParentFile();
