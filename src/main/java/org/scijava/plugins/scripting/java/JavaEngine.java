@@ -176,6 +176,47 @@ public class JavaEngine extends AbstractScriptEngine {
 		return null;
 	}
 
+	public void compile(final File file, final Writer errorWriter) {
+		try {
+			final Builder builder = new Builder(file, null, errorWriter);
+			try {
+				builder.project.build();
+			} finally {
+				builder.cleanup();
+			}
+		} catch (Throwable t) {
+			printOrThrow(t, errorWriter);
+		}
+	}
+
+	public void makeJar(final File file, final boolean includeSources, final File output, final Writer errorWriter) {
+		try {
+			final Builder builder = new Builder(file, null, errorWriter);
+			try {
+				builder.project.build(true, true, includeSources);
+				final File target = builder.project.getTarget();
+				if (output != null && !target.equals(output)) {
+					BuildEnvironment.copyFile(target, output);
+				}
+			} finally {
+				builder.cleanup();
+			}
+		} catch (Throwable t) {
+			printOrThrow(t, errorWriter);
+		}
+	}
+
+	private void printOrThrow(Throwable t, Writer errorWriter) {
+		RuntimeException e = t instanceof RuntimeException ? (RuntimeException) t
+				: new RuntimeException(t);
+		if (errorWriter == null) {
+			throw e;
+		}
+		final PrintWriter err = new PrintWriter(errorWriter);
+		e.printStackTrace(err);
+		err.flush();
+	}
+
 	private class Builder {
 		private final PrintStream err;
 		private final File temporaryDirectory;
