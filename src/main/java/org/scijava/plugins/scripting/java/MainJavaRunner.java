@@ -48,7 +48,7 @@ import org.scijava.plugin.Plugin;
 @Plugin(type = JavaRunner.class, priority = Priority.LOW_PRIORITY)
 public class MainJavaRunner extends AbstractJavaRunner {
 
-	@Parameter
+	@Parameter(required = false)
 	private LogService log;
 
 	// -- JavaRunner methods --
@@ -83,11 +83,11 @@ public class MainJavaRunner extends AbstractJavaRunner {
 			return c.getMethod("main", String[].class);
 		}
 		catch (final SecurityException exc) {
-			log.debug(exc);
+			if (log != null) log.debug(exc);
 			return null;
 		}
 		catch (final NoSuchMethodException exc) {
-			log.debug(exc);
+			if (log != null) log.debug(exc);
 			return null;
 		}
 	}
