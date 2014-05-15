@@ -243,7 +243,7 @@ public class JavaEngineTest {
 
 	private ScriptEngine miniMaven() {
 		final Context context =
-			new Context(ScriptService.class, ObjectService.class);
+			new Context(ScriptService.class, ObjectService.class, JavaService.class);
 		final ObjectService objectService = context.getService(ObjectService.class);
 		final ScriptLanguage java =
 			objectService.getObjects(JavaScriptLanguage.class).get(0);
