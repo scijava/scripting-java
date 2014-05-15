@@ -262,7 +262,7 @@ public class JavaEngine extends AbstractScriptEngine {
 		path = path.substring(0, path.length() - mainClass.length() - 5);
 		if (path.replace(File.separatorChar, '/').endsWith("/src/main/java/")) {
 			path = path.substring(0, path.length() - "src/main/java/".length());
-			final File pom = new File(path + "pom.xml");
+			final File pom = new File(path, "pom.xml");
 			if (pom.exists()) return env.parse(pom, null);
 		}
 		final File rootDirectory = file.getParentFile();
