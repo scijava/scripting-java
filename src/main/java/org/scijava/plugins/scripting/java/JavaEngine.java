@@ -39,6 +39,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
@@ -110,8 +111,8 @@ public class JavaEngine extends AbstractScriptEngine {
 		final String path = (String)get(FILENAME);
 		File file = path == null ? null : new File(path);
 
+		final Writer writer = getContext().getErrorWriter();
 		try {
-			final Writer writer = getContext().getErrorWriter();
 			final Builder builder = new Builder(file, reader, writer);
 			final MavenProject project = builder.project;
 			String mainClass = builder.mainClass;
@@ -162,9 +163,15 @@ public class JavaEngine extends AbstractScriptEngine {
 				builder.cleanup();
 			}
 		} catch (Exception e) {
-			if (e instanceof ScriptException)
-				throw (ScriptException) e;
-			throw new ScriptException(e);
+			if (writer != null) {
+				final PrintWriter err = new PrintWriter(writer);
+				e.printStackTrace(err);
+				err.flush();
+			} else {
+				if (e instanceof ScriptException)
+					throw (ScriptException) e;
+				throw new ScriptException(e);
+			}
 		}
 		return null;
 	}
