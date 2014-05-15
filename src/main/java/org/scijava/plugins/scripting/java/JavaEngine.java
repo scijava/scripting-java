@@ -46,7 +46,6 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -66,11 +65,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.scijava.command.Command;
-import org.scijava.command.CommandInfo;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 import org.scijava.plugin.PluginService;
 import org.scijava.script.AbstractScriptEngine;
 import org.scijava.util.FileUtils;
@@ -99,6 +95,9 @@ public class JavaEngine extends AbstractScriptEngine {
 
 	@Parameter
 	private CommandService commandService;
+
+	@Parameter
+	JavaService javaService;
 
 	@Override
 	public Object eval(String script) throws ScriptException {
@@ -168,21 +167,7 @@ public class JavaEngine extends AbstractScriptEngine {
 
 			// launch main class
 			final Class<?> clazz = classLoader.loadClass(mainClass);
-			if (Command.class.isAssignableFrom(clazz)) {
-				final Plugin annotation = clazz.getAnnotation(Plugin.class);
-				final CommandInfo info = new CommandInfo(mainClass, annotation) {
-
-					@Override
-					public Class<? extends Command> loadClass() {
-						return (Class<? extends Command>) clazz;
-					}
-				};
-				pluginService.addPlugin(info);
-				commandService.run(info, true);
-			} else {
-				Method main = clazz.getMethod("main", new Class[] { String[].class });
-				main.invoke(null, new Object[] { new String[0] });
-			}
+			javaService.run(clazz);
 		} catch (Exception e) {
 			if (err != null) err.close();
 			if (e instanceof ScriptException) throw (ScriptException)e;
