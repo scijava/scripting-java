@@ -104,7 +104,6 @@ public class JavaEngine extends AbstractScriptEngine {
 		return eval(new StringReader(script));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
 		final String path = (String)get(FILENAME);
