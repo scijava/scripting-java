@@ -97,7 +97,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	private CommandService commandService;
 
 	@Parameter
-	JavaService javaService;
+	private JavaService javaService;
 
 	@Override
 	public Object eval(String script) throws ScriptException {
