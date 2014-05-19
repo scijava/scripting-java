@@ -388,7 +388,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	}
 
 	private static MavenProject fakePOM(final BuildEnvironment env,
-			final File directory, final String artifactId, final String mainClass)
+			final File directory, final String artifactId, final String mainClass, boolean writePOM)
 					throws IOException, ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException,
 					TransformerFactoryConfigurationError {
@@ -436,6 +436,9 @@ public class JavaEngine extends AbstractScriptEngine {
 				transformer.transform(new DOMSource(pom), new StreamResult(writer));
 				return env.parse(pomFile);
 			}
+		}
+		if (writePOM) {
+			transformer.transform(new DOMSource(pom), new StreamResult(new File(directory, "pom.xml")));
 		}
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		transformer.transform(new DOMSource(pom), new StreamResult(out));
