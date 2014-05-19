@@ -296,9 +296,7 @@ public class JavaEngine extends AbstractScriptEngine {
 			final File pom = new File(path, "pom.xml");
 			if (pom.exists()) return env.parse(pom, null);
 		}
-		final File rootDirectory = file.getParentFile();
-		final String artifactId = fakeArtifactId(env, file.getName());
-		return fakePOM(env, rootDirectory, artifactId, mainClass);
+		return writeTemporaryProject(env, new FileReader(file));
 	}
 
 	private static String getFullClassName(final File file) throws IOException {
@@ -405,7 +403,6 @@ public class JavaEngine extends AbstractScriptEngine {
 		append(pom, project, "version", DEFAULT_VERSION);
 
 		final Element build = append(pom, project, "build", null);
-		append(pom, build, "sourceDirectory", directory.getPath());
 
 		if (mainClass != null) {
 			final Element plugins = append(pom, build, "plugins", null);
