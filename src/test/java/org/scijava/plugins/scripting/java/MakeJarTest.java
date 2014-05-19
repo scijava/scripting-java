@@ -59,6 +59,10 @@ public class MakeJarTest {
 		engine.makeJar(file, false, output, writer);
 		assertJarEntries(output, "META-INF/MANIFEST.MF",
 				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class");
+		engine.makeJar(file, true, output, writer);
+		assertJarEntries(output, "META-INF/MANIFEST.MF",
+				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class",
+				"pom.xml", "src/main/java/Dummy.java");
 	}
 
 	private void assertJarEntries(File output, String... paths) throws IOException {
