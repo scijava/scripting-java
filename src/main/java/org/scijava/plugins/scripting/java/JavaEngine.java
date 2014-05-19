@@ -369,7 +369,8 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 
 		// write POM
-		return fakePOM(env, directory, fakeArtifactId(env, directory.getName()), mainClass);
+		final String artifactId = mainClass.substring(mainClass.lastIndexOf('.') + 1);
+		return fakePOM(env, directory, artifactId, mainClass, true);
 	}
 
 	private static String fakeArtifactId(final BuildEnvironment env, final String name) {
