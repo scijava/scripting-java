@@ -171,6 +171,14 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 	}
 
+	/**
+	 * Packages the build product into a {@code .jar} file.
+	 * 
+	 * @param file a {@code .java} or {@code pom.xml} file
+	 * @param includeSources whether to include the sources or not
+	 * @param output the {@code .jar} file to write to
+	 * @param errorWriter the destination for error messages
+	 */
 	public void makeJar(final File file, final boolean includeSources, final File output, final Writer errorWriter) {
 		try {
 			final Builder builder = new Builder(file, null, errorWriter);
