@@ -68,6 +68,11 @@ public class JavaScriptLanguage extends AbstractScriptLanguage {
 	}
 
 	@Override
+	public List<String> getNames() {
+		return Arrays.asList("Java");
+	}
+
+	@Override
 	public List<String> getMimeTypes() {
 		return Arrays.asList("application/x-java");
 	}
