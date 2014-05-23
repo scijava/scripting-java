@@ -44,6 +44,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.junit.Test;
+import org.scijava.test.TestUtils;
 import org.scijava.util.FileUtils;
 import org.scijava.util.IteratorPlus;
 
@@ -53,7 +54,8 @@ public class MakeJarTest {
 		final StringWriter writer = new StringWriter();
 		final JavaEngine engine = new JavaEngine();
 		final File file = FileUtils.urlToFile(getClass().getResource("/Dummy.java"));
-		final File output = File.createTempFile("jar-test-", ".jar");
+		final File tmpDir = TestUtils.createTemporaryDirectory("jar-test-");
+		final File output = new File(tmpDir, "test.jar");
 		engine.makeJar(file, false, output, writer);
 		assertJarEntries(output, "META-INF/MANIFEST.MF",
 				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class");
