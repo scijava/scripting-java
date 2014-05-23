@@ -29,59 +29,13 @@
  * #L%
  */
 
-package org.scijava.plugins.scripting.java;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.script.ScriptEngine;
-
-import org.scijava.plugin.Plugin;
-import org.scijava.script.AbstractScriptLanguage;
-import org.scijava.script.ScriptLanguage;
-
 /**
- * TODO
+ * Dummy class for testing {@code .jar} file packaging.
  * 
  * @author Johannes Schindelin
  */
-@Plugin(type = ScriptLanguage.class)
-public class JavaScriptLanguage extends AbstractScriptLanguage {
-
-	// -- ScriptLanguage methods --
-
-	@Override
-	public boolean isCompiledLanguage() {
-		return true;
+public class Dummy {
+	public static void main(final String... args) {
+		throw new RuntimeException("Civilized people do not execute!");
 	}
-
-	// -- ScriptEngineFactory methods --
-
-	@Override
-	public List<String> getExtensions() {
-		return Arrays.asList("java", "xml");
-	}
-
-	@Override
-	public String getEngineName() {
-		return "MiniMaven";
-	}
-
-	@Override
-	public List<String> getNames() {
-		return Arrays.asList("Java");
-	}
-
-	@Override
-	public List<String> getMimeTypes() {
-		return Arrays.asList("application/x-java");
-	}
-
-	@Override
-	public ScriptEngine getScriptEngine() {
-		final JavaEngine engine = new JavaEngine();
-		getContext().inject(engine);
-		return engine;
-	}
-
 }

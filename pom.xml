@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>2.2</version>
+		<version>2.5</version>
 		<relativePath />
 	</parent>
 
@@ -95,12 +95,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>scijava-common</artifactId>
-			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

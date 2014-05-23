@@ -31,57 +31,48 @@
 
 package org.scijava.plugins.scripting.java;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
-import javax.script.ScriptEngine;
+import org.junit.Test;
+import org.scijava.test.TestUtils;
+import org.scijava.util.FileUtils;
+import org.scijava.util.IteratorPlus;
 
-import org.scijava.plugin.Plugin;
-import org.scijava.script.AbstractScriptLanguage;
-import org.scijava.script.ScriptLanguage;
-
-/**
- * TODO
- * 
- * @author Johannes Schindelin
- */
-@Plugin(type = ScriptLanguage.class)
-public class JavaScriptLanguage extends AbstractScriptLanguage {
-
-	// -- ScriptLanguage methods --
-
-	@Override
-	public boolean isCompiledLanguage() {
-		return true;
-	}
-
-	// -- ScriptEngineFactory methods --
-
-	@Override
-	public List<String> getExtensions() {
-		return Arrays.asList("java", "xml");
-	}
-
-	@Override
-	public String getEngineName() {
-		return "MiniMaven";
-	}
-
-	@Override
-	public List<String> getNames() {
-		return Arrays.asList("Java");
-	}
-
-	@Override
-	public List<String> getMimeTypes() {
-		return Arrays.asList("application/x-java");
-	}
-
-	@Override
-	public ScriptEngine getScriptEngine() {
+public class MakeJarTest {
+	@Test
+	public void testSingle() throws Exception {
+		final StringWriter writer = new StringWriter();
 		final JavaEngine engine = new JavaEngine();
-		getContext().inject(engine);
-		return engine;
+		final File file = FileUtils.urlToFile(getClass().getResource("/Dummy.java"));
+		final File tmpDir = TestUtils.createTemporaryDirectory("jar-test-");
+		final File output = new File(tmpDir, "test.jar");
+		engine.makeJar(file, false, output, writer);
+		assertJarEntries(output, "META-INF/MANIFEST.MF",
+				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class");
+		engine.makeJar(file, true, output, writer);
+		assertJarEntries(output, "META-INF/MANIFEST.MF",
+				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class",
+				"pom.xml", "src/main/java/Dummy.java");
 	}
 
+	private void assertJarEntries(File output, String... paths) throws IOException {
+		final Set<String> set = new TreeSet<String>(Arrays.asList(paths));
+		final JarFile jar = new JarFile(output);
+		for (final JarEntry entry : new IteratorPlus<JarEntry>(jar.entries())) {
+			final String path = entry.getName();
+			assertTrue("Unexpected: " + path, set.remove(path));
+		}
+		jar.close();
+		assertEquals("Missing: " + set, 0, set.size());
+	}
 }

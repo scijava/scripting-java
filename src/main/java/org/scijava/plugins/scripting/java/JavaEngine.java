@@ -171,6 +171,14 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 	}
 
+	/**
+	 * Packages the build product into a {@code .jar} file.
+	 * 
+	 * @param file a {@code .java} or {@code pom.xml} file
+	 * @param includeSources whether to include the sources or not
+	 * @param output the {@code .jar} file to write to
+	 * @param errorWriter the destination for error messages
+	 */
 	public void makeJar(final File file, final boolean includeSources, final File output, final Writer errorWriter) {
 		try {
 			final Builder builder = new Builder(file, null, errorWriter);
@@ -288,9 +296,7 @@ public class JavaEngine extends AbstractScriptEngine {
 			final File pom = new File(path, "pom.xml");
 			if (pom.exists()) return env.parse(pom, null);
 		}
-		final File rootDirectory = file.getParentFile();
-		final String artifactId = fakeArtifactId(env, file.getName());
-		return fakePOM(env, rootDirectory, artifactId, mainClass);
+		return writeTemporaryProject(env, new FileReader(file));
 	}
 
 	private static String getFullClassName(final File file) throws IOException {
@@ -361,7 +367,8 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 
 		// write POM
-		return fakePOM(env, directory, fakeArtifactId(env, directory.getName()), mainClass);
+		final String artifactId = mainClass.substring(mainClass.lastIndexOf('.') + 1);
+		return fakePOM(env, directory, artifactId, mainClass, true);
 	}
 
 	private static String fakeArtifactId(final BuildEnvironment env, final String name) {
@@ -379,7 +386,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	}
 
 	private static MavenProject fakePOM(final BuildEnvironment env,
-			final File directory, final String artifactId, final String mainClass)
+			final File directory, final String artifactId, final String mainClass, boolean writePOM)
 					throws IOException, ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException,
 					TransformerFactoryConfigurationError {
@@ -396,7 +403,6 @@ public class JavaEngine extends AbstractScriptEngine {
 		append(pom, project, "version", DEFAULT_VERSION);
 
 		final Element build = append(pom, project, "build", null);
-		append(pom, build, "sourceDirectory", directory.getPath());
 
 		if (mainClass != null) {
 			final Element plugins = append(pom, build, "plugins", null);
@@ -427,6 +433,9 @@ public class JavaEngine extends AbstractScriptEngine {
 				transformer.transform(new DOMSource(pom), new StreamResult(writer));
 				return env.parse(pomFile);
 			}
+		}
+		if (writePOM) {
+			transformer.transform(new DOMSource(pom), new StreamResult(new File(directory, "pom.xml")));
 		}
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		transformer.transform(new DOMSource(pom), new StreamResult(out));

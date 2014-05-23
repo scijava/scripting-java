@@ -97,7 +97,6 @@ public class JavaEngineTest {
 		assertTrue(jar.exists());
 
 		System.gc();
-		assertTrue(FileUtils.deleteRecursively(dir));
 	}
 
 	@Test
@@ -134,7 +133,6 @@ public class JavaEngineTest {
 		assertTrue(jar.exists());
 
 		System.gc();
-		assertTrue(FileUtils.deleteRecursively(dir));
 	}
 
 	@Test
