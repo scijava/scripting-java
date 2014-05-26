@@ -39,6 +39,8 @@ import java.util.Set;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
+import org.scijava.script.ScriptModule;
+
 /**
  * TODO
  * 
@@ -85,7 +87,8 @@ public class JavaEngineBindings implements Bindings {
 
 	@Override
 	public Object put(String name, Object value) {
-		if (!name.equals(ScriptEngine.FILENAME) && !name.equals("IJ")) {
+		if (!name.equals(ScriptEngine.FILENAME) && !name.equals("IJ") &&
+				!name.equals(ScriptModule.class.getName())) {
 			throw new UnsupportedOperationException();
 		}
 		return map.put(name, value);
