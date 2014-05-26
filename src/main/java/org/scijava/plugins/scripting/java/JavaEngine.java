@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -76,7 +77,13 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * TODO
+ * A pseudo-{@link ScriptEngine} compiling and executing Java classes.
+ * <p>
+ * Thanks to <a href="https://github.com/scijava/minimaven">MiniMaven</a>, this
+ * script engine can handle individual Java classes as well as trivial Maven
+ * projects (triggered when the proviede script path suggests that the file is
+ * part of a Maven project).
+ * </p>
  * 
  * @author Johannes Schindelin
  */

@@ -41,7 +41,11 @@ import org.scijava.script.AbstractScriptLanguage;
 import org.scijava.script.ScriptLanguage;
 
 /**
- * TODO
+ * Provides Java as a {@link ScriptLanguage}.
+ * <p>
+ * Primarily intended as a back-end for ImageJ2's script editor, this
+ * "script" language implementation compiles and runs Java classes.
+ * </p>
  * 
  * @author Johannes Schindelin
  */

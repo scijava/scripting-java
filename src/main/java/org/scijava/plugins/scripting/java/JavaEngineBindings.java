@@ -42,7 +42,7 @@ import javax.script.ScriptEngine;
 import org.scijava.script.ScriptModule;
 
 /**
- * TODO
+ * Pseudo-{@link Bindings} for the {@link JavaEngine}.
  * 
  * @author Johannes Schindelin
  */
