@@ -43,10 +43,14 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes.Name;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -463,15 +467,49 @@ public class JavaEngine extends AbstractScriptEngine {
 				for (final URL url : ((URLClassLoader)loader).getURLs()) {
 					if (url.getProtocol().equals("file")) {
 						final File file = new File(url.getPath());
-						final String artifactId = fakeArtifactId(env, file.getName());
-						Coordinate dependency = new Coordinate(DEFAULT_GROUP_ID, artifactId, "1.0.0");
-						env.fakePOM(file, dependency);
-						result.add(dependency);
+						if (url.toString().matches(".*/target/surefire/surefirebooter[0-9]*\\.jar")) {
+							getSurefireBooterURLs(file, url, env, result);
+							continue;
+						}
+						result.add(fakeDependency(env, file));
 					}
 				}
 			}
 		}
 		return result;
+	}
+
+	private static Coordinate fakeDependency(final BuildEnvironment env, final File file) {
+		final String artifactId = fakeArtifactId(env, file.getName());
+		Coordinate dependency = new Coordinate(DEFAULT_GROUP_ID, artifactId, "1.0.0");
+		env.fakePOM(file, dependency);
+		return dependency;
+	}
+
+	private static void getSurefireBooterURLs(final File file, final URL baseURL,
+		final BuildEnvironment env, final List<Coordinate> result)
+	{
+		try {
+			final JarFile jar = new JarFile(file);
+			Manifest manifest = jar.getManifest();
+			if (manifest != null) {
+				final String classPath =
+					manifest.getMainAttributes().getValue(Name.CLASS_PATH);
+				if (classPath != null) {
+					for (final String element : classPath.split(" +"))
+						try {
+							final File dependency = new File(new URL(baseURL, element).getPath());
+							result.add(fakeDependency(env, dependency));
+						}
+						catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+				}
+			}
+		}
+		catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
