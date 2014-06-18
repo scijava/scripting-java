@@ -139,8 +139,10 @@ public class JavaEngineTest {
 	public void testEvalReader() throws Exception {
 		final String source = "" + //
 			"package pinky.brain;\n" + //
+			"import org.scijava.util.AppUtils;\n" + //
 			"public class TakeOverTheWorld {\n" + //
 			"\tpublic static void main(final String[] arguments) {\n" + //
+			"\t\tSystem.err.println(\"main class: \" + AppUtils.getMainClass());\n" + //
 			"\t\tthrow new RuntimeException(\"Egads!\");\n" + //
 			"\t}\n" + //
 			"}";
