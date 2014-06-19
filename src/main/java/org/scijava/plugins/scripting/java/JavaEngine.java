@@ -96,7 +96,11 @@ public class JavaEngine extends AbstractScriptEngine {
 	private final static String DEFAULT_GROUP_ID = "net.imagej";
 	private final static String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
 
+	/**
+	 * The key to specify how to indent the XML written out by Xalan.
+	 */
 	private final static String XALAN_INDENT_AMOUNT = "{http://xml.apache.org/xslt}indent-amount";
+
 	{
 		engineScopeBindings = new JavaEngineBindings();
 	}
@@ -110,11 +114,31 @@ public class JavaEngine extends AbstractScriptEngine {
 	@Parameter
 	private JavaService javaService;
 
+	/**
+	 * Compiles and runs the specified {@code .java} class.
+	 * <p>
+	 * The currently active {@link JavaService} is responsible for running the
+	 * class.
+	 * </p>
+	 * 
+	 * @param script the source code for a Java class
+	 * @return null
+	 */
 	@Override
 	public Object eval(String script) throws ScriptException {
 		return eval(new StringReader(script));
 	}
 
+	/**
+	 * Compiles and runs the specified {@code .java} class.
+	 * <p>
+	 * The currently active {@link JavaService} is responsible for running the
+	 * class.
+	 * </p>
+	 * 
+	 * @param reader the reader producing the source code for a Java class
+	 * @return null
+	 */
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
 		final String path = (String)get(FILENAME);
@@ -169,6 +193,12 @@ public class JavaEngine extends AbstractScriptEngine {
 		return null;
 	}
 
+	/**
+	 * Compiles the specified {@code .java} file.
+	 * 
+	 * @param file the source code
+	 * @param errorWriter where to write the errors
+	 */
 	public void compile(final File file, final Writer errorWriter) {
 		try {
 			final Builder builder = new Builder(file, null, errorWriter);
@@ -207,6 +237,17 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 	}
 
+	/**
+	 * Reports an exception.
+	 * <p>
+	 * If a writer for errors is specified (e.g. when being called from the script
+	 * editor), we should just print the error and return. Otherwise, we'll throw
+	 * the exception back at the caller.
+	 * </p>
+	 * 
+	 * @param t the exception
+	 * @param errorWriter the error writer, or null
+	 */
 	private void printOrThrow(Throwable t, Writer errorWriter) {
 		RuntimeException e = t instanceof RuntimeException ? (RuntimeException) t
 				: new RuntimeException(t);
@@ -218,6 +259,11 @@ public class JavaEngine extends AbstractScriptEngine {
 		err.flush();
 	}
 
+	/**
+	 * A wrapper around a (possibly only temporary) project.
+	 * 
+	 * @author Johannes Schindelin
+	 */
 	private class Builder {
 		private final PrintStream err;
 		private final File temporaryDirectory;
@@ -280,6 +326,9 @@ public class JavaEngine extends AbstractScriptEngine {
 			}
 		}
 
+		/**
+		 * Cleans up the project, if it was only temporary.
+		 */
 		private void cleanup() {
 			if (err != null)
 				err.close();
@@ -292,6 +341,24 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 	}
 
+	/**
+	 * Returns a Maven POM associated with a {@code .java} file.
+	 * <p>
+	 * If the file is not part of a valid Maven project, one will be generated.
+	 * </p>
+	 * 
+	 * @param env the {@link BuildEnvironment}
+	 * @param file the {@code .java} file
+	 * @param mainClass the name of the class to execute
+	 * @return the Maven POM
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws ScriptException
+	 * @throws TransformerConfigurationException
+	 * @throws TransformerException
+	 * @throws TransformerFactoryConfigurationError
+	 */
 	private MavenProject getMavenProject(final BuildEnvironment env,
 			final File file, final String mainClass) throws IOException,
 			ParserConfigurationException, SAXException, ScriptException,
@@ -310,6 +377,13 @@ public class JavaEngine extends AbstractScriptEngine {
 		return writeTemporaryProject(env, new FileReader(file));
 	}
 
+	/**
+	 * Determines the class name of a Java class given its source code.
+	 * 
+	 * @param file the source code
+	 * @return the class name including the package
+	 * @throws IOException
+	 */
 	private static String getFullClassName(final File file) throws IOException {
 		String name = file.getName();
 		if (!name.endsWith(".java")) {
@@ -349,6 +423,19 @@ public class JavaEngine extends AbstractScriptEngine {
 		return packageName + name; // the 'package' statement must be the first in the file
 	}
 
+	/**
+	 * Makes a temporary Maven project for a virtual {@code .java} file.
+	 * 
+	 * @param env the {@link BuildEnvironment} to store the generated Maven POM
+	 * @param reader the virtual {@code .java} file
+	 * @return the generated Maven POM
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws TransformerConfigurationException
+	 * @throws TransformerException
+	 * @throws TransformerFactoryConfigurationError
+	 */
 	private static MavenProject writeTemporaryProject(final BuildEnvironment env,
 		final Reader reader) throws IOException, ParserConfigurationException,
 		SAXException, TransformerConfigurationException, TransformerException,
@@ -382,6 +469,18 @@ public class JavaEngine extends AbstractScriptEngine {
 		return fakePOM(env, directory, artifactId, mainClass, true);
 	}
 
+	/**
+	 * Fakes a sensible, valid {@code artifactId}.
+	 * <p>
+	 * Given a name for a project or {@code .java} file, this function generated a
+	 * proper {@code artifactId} for use in faked Maven POMs.
+	 * </p>
+	 * 
+	 * @param env the associated {@link BuildEnvironment} (to avoid duplicate
+	 *          {@code artifactId}s)
+	 * @param name the project name
+	 * @return the generated {@code artifactId}
+	 */
 	private static String fakeArtifactId(final BuildEnvironment env, final String name) {
 		int dot = name.indexOf('.');
 		final String prefix = dot < 0 ? name : dot == 0 ? "dependency" : name.substring(0, dot);
@@ -396,6 +495,29 @@ public class JavaEngine extends AbstractScriptEngine {
 		}
 	}
 
+	/**
+	 * Fakes a single Maven POM for a given dependency.
+	 * <p>
+	 * When discovering possible dependencies on the class path, we do not
+	 * necessarily deal with proper Maven-generated artifacts. To be able to use
+	 * them for single {@code .java} "scripts", we simply fake Maven POMs for
+	 * those files.
+	 * </p>
+	 * 
+	 * @param env the {@link BuildEnvironment} to house the faked POM
+	 * @param directory the directory associated with the Maven project
+	 * @param artifactId the {@code artifactId} of the dependency
+	 * @param mainClass the main class, if any
+	 * @param writePOM whether to write the Maven POM as {@code pom.xml} into the
+	 *          specified directory
+	 * @return the faked POM
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws TransformerConfigurationException
+	 * @throws TransformerException
+	 * @throws TransformerFactoryConfigurationError
+	 */
 	private static MavenProject fakePOM(final BuildEnvironment env,
 			final File directory, final String artifactId, final String mainClass, boolean writePOM)
 					throws IOException, ParserConfigurationException, SAXException,
@@ -453,6 +575,15 @@ public class JavaEngine extends AbstractScriptEngine {
 		return env.parse(new ByteArrayInputStream(out.toByteArray()), directory, null, null);
 	}
 
+	/**
+	 * Writes out the specified XML element.
+	 * 
+	 * @param document the XML document
+	 * @param parent the parent node
+	 * @param tag the tag to append
+	 * @param content the content of the tag to append
+	 * @return the appended node
+	 */
 	private static Element append(final Document document, final Element parent, final String tag, final String content) {
 		Element child = document.createElement(tag);
 		if (content != null) child.appendChild(document.createCDATASection(content));
@@ -460,6 +591,21 @@ public class JavaEngine extends AbstractScriptEngine {
 		return child;
 	}
 
+	/**
+	 * Discovers all current class path elements and offers them as faked Maven
+	 * POMs.
+	 * <p>
+	 * When constructing an in-memory Maven POM for a single {@code .java} file,
+	 * we need to make sure that all class path elements are available to the
+	 * compiler. Since we use MiniMaven to compile everything (in order to be
+	 * consistent, and also to be able to generate Maven projects conveniently, to
+	 * turn hacky projects into proper ones), we need to put all of that into the
+	 * Maven context, i.e. fake Maven POMs for all the dependencies.
+	 * </p>
+	 * 
+	 * @param env the {@link BuildEnvironment} in which the faked POMs are stored
+	 * @return the list of dependencies, as {@link Coordinate}s
+	 */
 	private static List<Coordinate> getAllDependencies(final BuildEnvironment env) {
 		final List<Coordinate> result = new ArrayList<Coordinate>();
 		for (ClassLoader loader = env.getClass().getClassLoader(); loader != null; loader = loader.getParent()) {
@@ -479,6 +625,18 @@ public class JavaEngine extends AbstractScriptEngine {
 		return result;
 	}
 
+	/**
+	 * Fakes a Maven POM in memory for a specified dependency.
+	 * <p>
+	 * When compiling bare {@code .java} files, we need to fake a full-blown Maven
+	 * project, including full-blown Maven dependencies for all of the files
+	 * present on the current class path.
+	 * </p>
+	 * 
+	 * @param env the {@link BuildEnvironment} for storing the faked Maven POM
+	 * @param file the dependency
+	 * @return the {@link Coordinate} specifying the dependency
+	 */
 	private static Coordinate fakeDependency(final BuildEnvironment env, final File file) {
 		final String artifactId = fakeArtifactId(env, file.getName());
 		Coordinate dependency = new Coordinate(DEFAULT_GROUP_ID, artifactId, "1.0.0");
@@ -486,6 +644,30 @@ public class JavaEngine extends AbstractScriptEngine {
 		return dependency;
 	}
 
+	/**
+	 * Figures out the class path given a {@code .jar} file generated by the
+	 * {@code maven-surefire-plugin}.
+	 * <p>
+	 * A little-known feature of JAR files is that their manifest can specify
+	 * additional class path elements in a {@code Class-Path} entry. The
+	 * {@code maven-surefire-plugin} makes extensive use of that: the URLs of the
+	 * of the active {@link URLClassLoader} will consist of only a single
+	 * {@code .jar} file that is empty except for a manifest whose sole purpose is
+	 * to specify the dependencies.
+	 * </p>
+	 * <p>
+	 * This method can be used to discover those additional class path elements.
+	 * </p>
+	 * 
+	 * @param file the {@code .jar} file generated by the
+	 *          {@code maven-surefire-plugin}
+	 * @param baseURL the {@link URL} of the {@code .jar} file, needed for class
+	 *          path elements specified as relative paths
+	 * @param env the {@link BuildEnvironment}, to store the Maven POMs faked for
+	 *          the class path elements
+	 * @param result the list of dependencies to which the discovered dependencies
+	 *          are added
+	 */
 	private static void getSurefireBooterURLs(final File file, final URL baseURL,
 		final BuildEnvironment env, final List<Coordinate> result)
 	{
