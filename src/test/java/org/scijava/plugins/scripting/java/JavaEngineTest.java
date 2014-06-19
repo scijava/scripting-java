@@ -48,11 +48,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
 import org.scijava.object.ObjectService;
-import org.scijava.plugins.scripting.java.JavaScriptLanguage;
 import org.scijava.script.ScriptLanguage;
 import org.scijava.script.ScriptService;
 import org.scijava.test.TestUtils;
-import org.scijava.util.FileUtils;
 
 /**
  * Tests the Java 'scripting' backend.
