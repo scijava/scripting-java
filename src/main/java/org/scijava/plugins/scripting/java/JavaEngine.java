@@ -168,7 +168,7 @@ public class JavaEngine extends AbstractScriptEngine {
 					urls[i] = new URL("file:" + paths[i]
 							+ (paths[i].endsWith(".jar") ? "" : "/"));
 				URLClassLoader classLoader = new URLClassLoader(urls,
-						getClass().getClassLoader());
+						Thread.currentThread().getContextClassLoader());
 
 				// needed for sezpoz
 				Thread.currentThread().setContextClassLoader(classLoader);
@@ -608,7 +608,8 @@ public class JavaEngine extends AbstractScriptEngine {
 	 */
 	private static List<Coordinate> getAllDependencies(final BuildEnvironment env) {
 		final List<Coordinate> result = new ArrayList<Coordinate>();
-		for (ClassLoader loader = env.getClass().getClassLoader(); loader != null; loader = loader.getParent()) {
+		for (ClassLoader loader = Thread.currentThread().getContextClassLoader();
+				loader != null; loader = loader.getParent()) {
 			if (loader instanceof URLClassLoader) {
 				for (final URL url : ((URLClassLoader)loader).getURLs()) {
 					if (url.getProtocol().equals("file")) {
