@@ -63,7 +63,7 @@ public class JavaScriptLanguage extends AbstractScriptLanguage {
 
 	@Override
 	public List<String> getExtensions() {
-		return Arrays.asList("java", "xml");
+		return Arrays.asList("java");
 	}
 
 	@Override
