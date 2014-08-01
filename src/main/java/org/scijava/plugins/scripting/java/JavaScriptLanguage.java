@@ -50,7 +50,7 @@ import org.scijava.script.ScriptLanguage;
  * 
  * @author Johannes Schindelin
  */
-@Plugin(type = ScriptLanguage.class)
+@Plugin(type = ScriptLanguage.class, name = "Java")
 public class JavaScriptLanguage extends AbstractScriptLanguage {
 
 	// -- ScriptLanguage methods --
