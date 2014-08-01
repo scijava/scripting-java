@@ -43,7 +43,8 @@ import org.scijava.script.ScriptLanguage;
 /**
  * Provides Java as a {@link ScriptLanguage}.
  * <p>
- * Primarily intended as a back-end for ImageJ2's script editor, this
+ * Primarily intended as a back-end for the <a
+ * href="http://imagej.net/Script_Editor">ImageJ script editor</a>, this
  * "script" language implementation compiles and runs Java classes.
  * </p>
  * 
