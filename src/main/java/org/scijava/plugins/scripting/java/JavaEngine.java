@@ -163,6 +163,16 @@ public class JavaEngine extends AbstractScriptEngine {
 	/**
 	 * Compiles and runs the specified {@code .java} class.
 	 * 
+	 * @param script the source code for a Java class
+	 * @return the compiled Java class as {@link Class}.
+	 */
+	public Class<?> compile(String script) throws ScriptException {
+		return compile(new StringReader(script));
+	}
+
+	/**
+	 * Compiles and runs the specified {@code .java} class.
+	 * 
 	 * @param reader the reader producing the source code for a Java class
 	 * @returns the compiled Java class as {@link Class}.
 	 */
