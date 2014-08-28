@@ -90,6 +90,7 @@ import org.xml.sax.SAXException;
  * </p>
  * 
  * @author Johannes Schindelin
+ * @author Jonathan Hale
  */
 public class JavaEngine extends AbstractScriptEngine {
 
@@ -141,6 +142,31 @@ public class JavaEngine extends AbstractScriptEngine {
 	 */
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
+		final Writer writer = getContext().getErrorWriter();
+		try {
+			final Class<?> clazz = compile(reader);
+			javaService.run(clazz);
+		} catch (Exception e) {
+			if (writer != null) {
+				final PrintWriter err = new PrintWriter(writer);
+				e.printStackTrace(err);
+				err.flush();
+			} else {
+				if (e instanceof ScriptException)
+					throw (ScriptException) e;
+				throw new ScriptException(e);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Compiles and runs the specified {@code .java} class.
+	 * 
+	 * @param reader the reader producing the source code for a Java class
+	 * @returns the compiled Java class as {@link Class}.
+	 */
+	public Class<?> compile(Reader reader) throws ScriptException {
 		final String path = (String)get(FILENAME);
 		File file = path == null ? null : new File(path);
 
@@ -170,12 +196,11 @@ public class JavaEngine extends AbstractScriptEngine {
 				URLClassLoader classLoader = new URLClassLoader(urls,
 						Thread.currentThread().getContextClassLoader());
 
-				// needed for sezpoz
+				// needed for annotation processing
 				Thread.currentThread().setContextClassLoader(classLoader);
 
-				// launch main class
-				final Class<?> clazz = classLoader.loadClass(mainClass);
-				javaService.run(clazz);
+				// load main class
+				return classLoader.loadClass(mainClass);
 			} finally {
 				builder.cleanup();
 			}
