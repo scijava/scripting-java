@@ -93,7 +93,7 @@ import org.xml.sax.SAXException;
  */
 public class JavaEngine extends AbstractScriptEngine {
 
-	private final static String DEFAULT_GROUP_ID = "net.imagej";
+	private final static String DEFAULT_GROUP_ID = "org.scijava.scripting.java";
 	private final static String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
 
 	/**

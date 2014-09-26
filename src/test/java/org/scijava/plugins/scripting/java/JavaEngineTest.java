@@ -198,7 +198,7 @@ public class JavaEngineTest {
 			" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0\n" + //
 			" http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" + //
 			" <modelVersion>4.0.0</modelVersion>\n" + //
-			" <groupId>net.imagej</groupId>\n" + //
+			" <groupId>org.scijava.scripting.java</groupId>\n" + //
 			" <artifactId>MinimalTest</artifactId>\n" + //
 			" <version>1.0.0</version>\n" + //
 			" <build>\n" + //
