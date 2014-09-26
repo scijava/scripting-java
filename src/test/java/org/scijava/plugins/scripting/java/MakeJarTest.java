@@ -58,10 +58,10 @@ public class MakeJarTest {
 		final File output = new File(tmpDir, "test.jar");
 		engine.makeJar(file, false, output, writer);
 		assertJarEntries(output, "META-INF/MANIFEST.MF",
-				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class");
+				"META-INF/maven/org.scijava.scripting.java/Dummy/pom.xml", "Dummy.class");
 		engine.makeJar(file, true, output, writer);
 		assertJarEntries(output, "META-INF/MANIFEST.MF",
-				"META-INF/maven/net.imagej/Dummy/pom.xml", "Dummy.class",
+				"META-INF/maven/org.scijava.scripting.java/Dummy/pom.xml", "Dummy.class",
 				"pom.xml", "src/main/java/Dummy.java");
 	}
 
