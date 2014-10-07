@@ -37,7 +37,7 @@ import org.scijava.plugin.HandlerPlugin;
 import org.scijava.plugin.Plugin;
 
 /**
- * A plugin which extends an Java script language's execution handling. A
+ * A plugin which extends the Java script language's execution handling. A
  * {@code JavaRunner} knows how to execute certain classes, beyond just Java's
  * usual {@code main} method.
  * <p>
