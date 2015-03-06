@@ -128,7 +128,23 @@ public class JavaEngine extends AbstractScriptEngine {
 	 */
 	@Override
 	public Object eval(String script) throws ScriptException {
-		return eval(new StringReader(script));
+		final Writer writer = getContext().getErrorWriter();
+		try {
+			final Class<?> clazz = compile(script);
+			javaService.run(clazz);
+		}
+		catch (Exception e) {
+			if (writer != null) {
+				final PrintWriter err = new PrintWriter(writer);
+				e.printStackTrace(err);
+				err.flush();
+			}
+			else {
+				if (e instanceof ScriptException) throw (ScriptException) e;
+				throw new ScriptException(e);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -143,22 +159,14 @@ public class JavaEngine extends AbstractScriptEngine {
 	 */
 	@Override
 	public Object eval(Reader reader) throws ScriptException {
-		final Writer writer = getContext().getErrorWriter();
+		String script;
 		try {
-			final Class<?> clazz = compile(reader);
-			javaService.run(clazz);
-		} catch (Exception e) {
-			if (writer != null) {
-				final PrintWriter err = new PrintWriter(writer);
-				e.printStackTrace(err);
-				err.flush();
-			} else {
-				if (e instanceof ScriptException)
-					throw (ScriptException) e;
-				throw new ScriptException(e);
-			}
+			script = getReaderContentsAsString(reader);
 		}
-		return null;
+		catch (IOException e) {
+			throw new ScriptException(e);
+		}
+		return eval(script);
 	}
 
 	/**
