@@ -168,21 +168,14 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @return the compiled Java class as {@link Class}.
 	 */
 	public Class<?> compile(String script) throws ScriptException {
-		return compile(new StringReader(script));
-	}
-
-	/**
-	 * Compiles and runs the specified {@code .java} class.
-	 * 
-	 * @param reader the reader producing the source code for a Java class
-	 * @returns the compiled Java class as {@link Class}.
-	 */
-	public Class<?> compile(Reader reader) throws ScriptException {
 		final String path = (String)get(FILENAME);
 		File file = path == null ? null : new File(path);
 
 		final Writer writer = getContext().getErrorWriter();
 		try {
+			// script may be null, but then we cannot create a StringReader for it,
+			// therefore null is passed if script is null.
+			final Reader reader = (script == null) ? null : new StringReader(script);
 			final Builder builder = new Builder(file, reader, writer);
 			final MavenProject project = builder.project;
 			String mainClass = builder.mainClass;
@@ -227,6 +220,23 @@ public class JavaEngine extends AbstractScriptEngine {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Compiles and runs the specified {@code .java} class.
+	 *
+	 * @param reader the reader producing the source code for a Java class
+	 * @return the compiled Java class as {@link Class}.
+	 */
+	public Class<?> compile(Reader reader) throws ScriptException {
+		String script;
+		try {
+			script = getReaderContentsAsString(reader);
+		}
+		catch (IOException e) {
+			throw new ScriptException(e);
+		}
+		return compile(script);
 	}
 
 	/**
