@@ -46,6 +46,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -728,6 +729,28 @@ public class JavaEngine extends AbstractScriptEngine {
 		catch (final IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Read complete contents of a Reader and return as String.
+	 *
+	 * @param reader {@link Reader} whose output should be returned as String.
+	 * @return contents of reader as String.
+	 */
+	private static String getReaderContentsAsString(Reader reader) throws IOException {
+		if (reader == null) {
+			return null;
+		}
+
+		CharBuffer buffer = CharBuffer.allocate(1024);
+		StringBuilder builder = new StringBuilder();
+
+		int read;
+		while ((read = reader.read(buffer)) != -1) {
+			builder.append(buffer, 0, read);
+		}
+
+		return builder.toString();
 	}
 
 }
