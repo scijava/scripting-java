@@ -199,14 +199,14 @@ public class JavaEngine extends AbstractScriptEngine {
 				}
 
 				// make class loader
-				String[] paths = project.getClassPath(false).split(
-						File.pathSeparator);
+				String[] paths = project.getClassPath(false).split(File.pathSeparator);
 				URL[] urls = new URL[paths.length];
 				for (int i = 0; i < urls.length; i++)
-					urls[i] = new URL("file:" + paths[i]
-							+ (paths[i].endsWith(".jar") ? "" : "/"));
-				URLClassLoader classLoader = new URLClassLoader(urls,
-						Thread.currentThread().getContextClassLoader());
+					urls[i] =
+						new URL("file:" + paths[i] + (paths[i].endsWith(".jar") ? "" : "/"));
+				URLClassLoader classLoader =
+					new URLClassLoader(urls, Thread.currentThread()
+						.getContextClassLoader());
 
 				// needed for annotation processing
 				Thread.currentThread().setContextClassLoader(classLoader);
@@ -250,20 +250,42 @@ public class JavaEngine extends AbstractScriptEngine {
 	}
 
 	/**
-	 * Compiles the specified {@code .java} file.
+	 * Compiles the specified {@code .java} file. Errors are written to the
+	 * context error writer.
 	 * 
 	 * @param file the source code
-	 * @param errorWriter where to write the errors
+	 * @see #compile(File, Writer)
+	 * @see #compile(Reader)
+	 * @see #compile(String)
+	 */
+	public void compile(final File file) {
+		compile(file, null);
+	}
+
+	/**
+	 * Compiles the specified {@code .java} file. Errors are written to the
+	 * specified errorWriter or if it is null, to the context error writer.
+	 * 
+	 * @param file the source code
+	 * @param errorWriter where to write the errors or null to use context
+	 *          errorWriter
+	 * @see #compile(File)
+	 * @see #compile(Reader)
+	 * @see #compile(String)
 	 */
 	public void compile(final File file, final Writer errorWriter) {
 		try {
-			final Builder builder = new Builder(file, null, errorWriter);
+			final Writer writer =
+				(errorWriter == null) ? getContext().getErrorWriter() : errorWriter;
+			final Builder builder = new Builder(file, null, writer);
 			try {
 				builder.project.build();
-			} finally {
+			}
+			finally {
 				builder.cleanup();
 			}
-		} catch (Throwable t) {
+		}
+		catch (Throwable t) {
 			printOrThrow(t, errorWriter);
 		}
 	}
