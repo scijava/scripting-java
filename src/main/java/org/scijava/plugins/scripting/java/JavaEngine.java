@@ -101,7 +101,8 @@ public class JavaEngine extends AbstractScriptEngine {
 	/**
 	 * The key to specify how to indent the XML written out by Xalan.
 	 */
-	private final static String XALAN_INDENT_AMOUNT = "{http://xml.apache.org/xslt}indent-amount";
+	private final static String XALAN_INDENT_AMOUNT =
+		"{http://xml.apache.org/xslt}indent-amount";
 
 	{
 		engineScopeBindings = new JavaEngineBindings();
@@ -176,7 +177,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @return the compiled Java class as {@link Class}.
 	 */
 	public Class<?> compile(String script) throws ScriptException {
-		final String path = (String)get(FILENAME);
+		final String path = (String) get(FILENAME);
 		File file = path == null ? null : new File(path);
 
 		final Writer writer = getContext().getErrorWriter();
@@ -193,8 +194,7 @@ public class JavaEngine extends AbstractScriptEngine {
 				if (mainClass == null) {
 					mainClass = project.getMainClass();
 					if (mainClass == null) {
-						throw new ScriptException(
-								"No main class found for file " + file);
+						throw new ScriptException("No main class found for file " + file);
 					}
 				}
 
@@ -213,17 +213,19 @@ public class JavaEngine extends AbstractScriptEngine {
 
 				// load main class
 				return classLoader.loadClass(mainClass);
-			} finally {
+			}
+			finally {
 				builder.cleanup();
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			if (writer != null) {
 				final PrintWriter err = new PrintWriter(writer);
 				e.printStackTrace(err);
 				err.flush();
-			} else {
-				if (e instanceof ScriptException)
-					throw (ScriptException) e;
+			}
+			else {
+				if (e instanceof ScriptException) throw (ScriptException) e;
 				throw new ScriptException(e);
 			}
 		}
@@ -274,7 +276,9 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param output the {@code .jar} file to write to
 	 * @param errorWriter the destination for error messages
 	 */
-	public void makeJar(final File file, final boolean includeSources, final File output, final Writer errorWriter) {
+	public void makeJar(final File file, final boolean includeSources,
+		final File output, final Writer errorWriter)
+	{
 		try {
 			final Builder builder = new Builder(file, null, errorWriter);
 			try {
@@ -283,10 +287,12 @@ public class JavaEngine extends AbstractScriptEngine {
 				if (output != null && !target.equals(output)) {
 					BuildEnvironment.copyFile(target, output);
 				}
-			} finally {
+			}
+			finally {
 				builder.cleanup();
 			}
-		} catch (Throwable t) {
+		}
+		catch (Throwable t) {
 			printOrThrow(t, errorWriter);
 		}
 	}
@@ -303,7 +309,8 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param errorWriter the error writer, or null
 	 */
 	private void printOrThrow(Throwable t, Writer errorWriter) {
-		RuntimeException e = t instanceof RuntimeException ? (RuntimeException) t
+		RuntimeException e =
+			t instanceof RuntimeException ? (RuntimeException) t
 				: new RuntimeException(t);
 		if (errorWriter == null) {
 			throw e;
@@ -319,6 +326,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @author Johannes Schindelin
 	 */
 	private class Builder {
+
 		private final PrintStream err;
 		private final File temporaryDirectory;
 		private String mainClass;
@@ -327,8 +335,9 @@ public class JavaEngine extends AbstractScriptEngine {
 		/**
 		 * Constructs a wrapper around a possibly temporary project.
 		 * 
-		 * @param file the {@code .java} file to build (or null, if {@code reader} is set).
-		 * @param reader provides the Java source if {@code file} is {@code null} 
+		 * @param file the {@code .java} file to build (or null, if {@code reader}
+		 *          is set).
+		 * @param reader provides the Java source if {@code file} is {@code null}
 		 * @param errorWriter where to write the error output.
 		 * @throws ScriptException
 		 * @throws IOException
@@ -339,13 +348,15 @@ public class JavaEngine extends AbstractScriptEngine {
 		 * @throws TransformerFactoryConfigurationError
 		 */
 		private Builder(final File file, final Reader reader,
-				final Writer errorWriter) throws ScriptException, IOException,
-				ParserConfigurationException, SAXException,
-				TransformerConfigurationException, TransformerException,
-				TransformerFactoryConfigurationError {
+			final Writer errorWriter) throws ScriptException, IOException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException,
+			TransformerFactoryConfigurationError
+		{
 			if (errorWriter == null) {
 				err = null;
-			} else {
+			}
+			else {
 				err = new PrintStream(new LineOutputStream() {
 
 					@Override
@@ -358,22 +369,22 @@ public class JavaEngine extends AbstractScriptEngine {
 
 			boolean verbose = "true".equals(get("verbose"));
 			boolean debug = "true".equals(get("debug"));
-			BuildEnvironment env = new BuildEnvironment(err, true, verbose,
-					debug);
+			BuildEnvironment env = new BuildEnvironment(err, true, verbose, debug);
 
-			if (file == null || !file.exists())
-				try {
-					project = writeTemporaryProject(env, reader);
-					temporaryDirectory = project.getDirectory();
-					mainClass = project.getMainClass();
-				} catch (Exception e) {
-					throw new ScriptException(e);
-				}
+			if (file == null || !file.exists()) try {
+				project = writeTemporaryProject(env, reader);
+				temporaryDirectory = project.getDirectory();
+				mainClass = project.getMainClass();
+			}
+			catch (Exception e) {
+				throw new ScriptException(e);
+			}
 			else {
 				temporaryDirectory = null;
 				if (file.getName().equals("pom.xml")) {
 					project = env.parse(file, null);
-				} else {
+				}
+				else {
 					mainClass = getFullClassName(file);
 					project = getMavenProject(env, file, mainClass);
 				}
@@ -384,12 +395,11 @@ public class JavaEngine extends AbstractScriptEngine {
 		 * Cleans up the project, if it was only temporary.
 		 */
 		private void cleanup() {
-			if (err != null)
-				err.close();
-			if (err != null)
-				err.close();
-			if (temporaryDirectory != null
-					&& !FileUtils.deleteRecursively(temporaryDirectory)) {
+			if (err != null) err.close();
+			if (err != null) err.close();
+			if (temporaryDirectory != null &&
+				!FileUtils.deleteRecursively(temporaryDirectory))
+			{
 				temporaryDirectory.deleteOnExit();
 			}
 		}
@@ -414,13 +424,17 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @throws TransformerFactoryConfigurationError
 	 */
 	private MavenProject getMavenProject(final BuildEnvironment env,
-			final File file, final String mainClass) throws IOException,
-			ParserConfigurationException, SAXException, ScriptException,
-			TransformerConfigurationException, TransformerException,
-			TransformerFactoryConfigurationError {
+		final File file, final String mainClass) throws IOException,
+		ParserConfigurationException, SAXException, ScriptException,
+		TransformerConfigurationException, TransformerException,
+		TransformerFactoryConfigurationError
+	{
 		String path = file.getAbsolutePath();
-		if (!path.replace(File.separatorChar, '.').endsWith("." + mainClass + ".java")) {
-			throw new ScriptException("Class " + mainClass + " in invalid directory: " + path);
+		if (!path.replace(File.separatorChar, '.').endsWith(
+			"." + mainClass + ".java"))
+		{
+			throw new ScriptException("Class " + mainClass +
+				" in invalid directory: " + path);
 		}
 		path = path.substring(0, path.length() - mainClass.length() - 5);
 		if (path.replace(File.separatorChar, '/').endsWith("/src/main/java/")) {
@@ -446,19 +460,21 @@ public class JavaEngine extends AbstractScriptEngine {
 		name = name.substring(0, name.length() - 5);
 
 		String packageName = "";
-		final Pattern packagePattern = Pattern.compile("package ([a-zA-Z0-9_.]*).*");
-		final Pattern classPattern = Pattern.compile(".*public class ([a-zA-Z0-9_]*).*");
+		final Pattern packagePattern =
+			Pattern.compile("package ([a-zA-Z0-9_.]*).*");
+		final Pattern classPattern =
+			Pattern.compile(".*public class ([a-zA-Z0-9_]*).*");
 		final BufferedReader reader = new BufferedReader(new FileReader(file));
 		for (;;) {
 			String line = reader.readLine().trim();
 			if (line == null) break;
-		outerLoop:
+			outerLoop:
 			while (line.startsWith("/*")) {
 				int end = line.indexOf("*/", 2);
 				while (end < 0) {
-						line = reader.readLine();
-						if (line == null) break outerLoop;
-						end = line.indexOf("*/");
+					line = reader.readLine();
+					if (line == null) break outerLoop;
+					end = line.indexOf("*/");
 				}
 				line = line.substring(end + 2).trim();
 			}
@@ -474,7 +490,8 @@ public class JavaEngine extends AbstractScriptEngine {
 			}
 		}
 		reader.close();
-		return packageName + name; // the 'package' statement must be the first in the file
+		return packageName + name; // the 'package' statement must be the first in
+																// the file
 	}
 
 	/**
@@ -510,16 +527,20 @@ public class JavaEngine extends AbstractScriptEngine {
 		out.close();
 
 		final String mainClass = getFullClassName(file);
-		final File result = new File(directory, "src/main/java/" + mainClass.replace('.', '/') + ".java");
+		final File result =
+			new File(directory, "src/main/java/" + mainClass.replace('.', '/') +
+				".java");
 		if (!result.getParentFile().mkdirs()) {
 			throw new IOException("Could not make directory for " + result);
 		}
 		if (!file.renameTo(result)) {
-			throw new IOException("Could not move " + file + " into the correct location");
+			throw new IOException("Could not move " + file +
+				" into the correct location");
 		}
 
 		// write POM
-		final String artifactId = mainClass.substring(mainClass.lastIndexOf('.') + 1);
+		final String artifactId =
+			mainClass.substring(mainClass.lastIndexOf('.') + 1);
 		return fakePOM(env, directory, artifactId, mainClass, true);
 	}
 
@@ -535,13 +556,16 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param name the project name
 	 * @return the generated {@code artifactId}
 	 */
-	private static String fakeArtifactId(final BuildEnvironment env, final String name) {
+	private static String fakeArtifactId(final BuildEnvironment env,
+		final String name)
+	{
 		int dot = name.indexOf('.');
-		final String prefix = dot < 0 ? name : dot == 0 ? "dependency" : name.substring(0, dot);
+		final String prefix =
+			dot < 0 ? name : dot == 0 ? "dependency" : name.substring(0, dot);
 		if (!env.containsProject(DEFAULT_GROUP_ID, prefix)) {
 			return prefix;
 		}
-		for (int i = 1; ; i++) {
+		for (int i = 1;; i++) {
 			final String artifactId = prefix + "-" + i;
 			if (!env.containsProject(DEFAULT_GROUP_ID, artifactId)) {
 				return artifactId;
@@ -573,17 +597,21 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @throws TransformerFactoryConfigurationError
 	 */
 	private static MavenProject fakePOM(final BuildEnvironment env,
-			final File directory, final String artifactId, final String mainClass, boolean writePOM)
-					throws IOException, ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException,
-					TransformerFactoryConfigurationError {
-		final Document pom = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+		final File directory, final String artifactId, final String mainClass,
+		boolean writePOM) throws IOException, ParserConfigurationException,
+		SAXException, TransformerConfigurationException, TransformerException,
+		TransformerFactoryConfigurationError
+	{
+		final Document pom =
+			DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		final Element project = pom.createElement("project");
 		pom.appendChild(project);
 		project.setAttribute("xmlns", "http://maven.apache.org/POM/4.0.0");
-		project.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-		project.setAttribute("xsi:schemaLocation", "http://maven.apache.org/POM/4.0.0 " +
-				"http://maven.apache.org/xsd/maven-4.0.0.xsd");
+		project.setAttribute("xmlns:xsi",
+			"http://www.w3.org/2001/XMLSchema-instance");
+		project.setAttribute("xsi:schemaLocation",
+			"http://maven.apache.org/POM/4.0.0 "
+				+ "http://maven.apache.org/xsd/maven-4.0.0.xsd");
 
 		append(pom, project, "groupId", DEFAULT_GROUP_ID);
 		append(pom, project, "artifactId", artifactId);
@@ -608,12 +636,16 @@ public class JavaEngine extends AbstractScriptEngine {
 			append(pom, dep, "artifactId", dependency.getArtifactId());
 			append(pom, dep, "version", dependency.getVersion());
 		}
-		final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		final Transformer transformer =
+			TransformerFactory.newInstance().newTransformer();
 		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty(XALAN_INDENT_AMOUNT, "4");
-		if (directory.getPath().replace(File.separatorChar, '/').endsWith("/src/main/java")) {
-			final File projectRootDirectory = directory.getParentFile().getParentFile().getParentFile();
+		if (directory.getPath().replace(File.separatorChar, '/').endsWith(
+			"/src/main/java"))
+		{
+			final File projectRootDirectory =
+				directory.getParentFile().getParentFile().getParentFile();
 			final File pomFile = new File(projectRootDirectory, "pom.xml");
 			if (!pomFile.exists()) {
 				final FileWriter writer = new FileWriter(pomFile);
@@ -622,11 +654,13 @@ public class JavaEngine extends AbstractScriptEngine {
 			}
 		}
 		if (writePOM) {
-			transformer.transform(new DOMSource(pom), new StreamResult(new File(directory, "pom.xml")));
+			transformer.transform(new DOMSource(pom), new StreamResult(new File(
+				directory, "pom.xml")));
 		}
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		transformer.transform(new DOMSource(pom), new StreamResult(out));
-		return env.parse(new ByteArrayInputStream(out.toByteArray()), directory, null, null);
+		return env.parse(new ByteArrayInputStream(out.toByteArray()), directory,
+			null, null);
 	}
 
 	/**
@@ -638,9 +672,12 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param content the content of the tag to append
 	 * @return the appended node
 	 */
-	private static Element append(final Document document, final Element parent, final String tag, final String content) {
+	private static Element append(final Document document, final Element parent,
+		final String tag, final String content)
+	{
 		Element child = document.createElement(tag);
-		if (content != null) child.appendChild(document.createCDATASection(content));
+		if (content != null) child
+			.appendChild(document.createCDATASection(content));
 		parent.appendChild(child);
 		return child;
 	}
@@ -660,15 +697,20 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param env the {@link BuildEnvironment} in which the faked POMs are stored
 	 * @return the list of dependencies, as {@link Coordinate}s
 	 */
-	private static List<Coordinate> getAllDependencies(final BuildEnvironment env) {
+	private static List<Coordinate>
+		getAllDependencies(final BuildEnvironment env)
+	{
 		final List<Coordinate> result = new ArrayList<Coordinate>();
-		for (ClassLoader loader = Thread.currentThread().getContextClassLoader();
-				loader != null; loader = loader.getParent()) {
+		for (ClassLoader loader = Thread.currentThread().getContextClassLoader(); loader != null; loader =
+			loader.getParent())
+		{
 			if (loader instanceof URLClassLoader) {
-				for (final URL url : ((URLClassLoader)loader).getURLs()) {
+				for (final URL url : ((URLClassLoader) loader).getURLs()) {
 					if (url.getProtocol().equals("file")) {
 						final File file = new File(url.getPath());
-						if (url.toString().matches(".*/target/surefire/surefirebooter[0-9]*\\.jar")) {
+						if (url.toString().matches(
+							".*/target/surefire/surefirebooter[0-9]*\\.jar"))
+						{
 							getSurefireBooterURLs(file, url, env, result);
 							continue;
 						}
@@ -692,9 +734,12 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param file the dependency
 	 * @return the {@link Coordinate} specifying the dependency
 	 */
-	private static Coordinate fakeDependency(final BuildEnvironment env, final File file) {
+	private static Coordinate fakeDependency(final BuildEnvironment env,
+		final File file)
+	{
 		final String artifactId = fakeArtifactId(env, file.getName());
-		Coordinate dependency = new Coordinate(DEFAULT_GROUP_ID, artifactId, "1.0.0");
+		Coordinate dependency =
+			new Coordinate(DEFAULT_GROUP_ID, artifactId, "1.0.0");
 		env.fakePOM(file, dependency);
 		return dependency;
 	}
@@ -735,7 +780,8 @@ public class JavaEngine extends AbstractScriptEngine {
 				if (classPath != null) {
 					for (final String element : classPath.split(" +"))
 						try {
-							final File dependency = new File(new URL(baseURL, element).getPath());
+							final File dependency =
+								new File(new URL(baseURL, element).getPath());
 							result.add(fakeDependency(env, dependency));
 						}
 						catch (MalformedURLException e) {
@@ -755,7 +801,9 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @param reader {@link Reader} whose output should be returned as String.
 	 * @return contents of reader as String.
 	 */
-	private static String getReaderContentsAsString(Reader reader) throws IOException {
+	private static String getReaderContentsAsString(Reader reader)
+		throws IOException
+	{
 		if (reader == null) {
 			return null;
 		}
