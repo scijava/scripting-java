@@ -118,7 +118,9 @@ public class JavaEngine extends AbstractScriptEngine {
 	private JavaService javaService;
 
 	/**
-	 * Compiles and runs the specified {@code .java} class.
+	 * Compiles and runs the specified {@code .java} class. If a filename is set
+	 * in the engine scope bindings via the {@link ScriptEngine#FILENAME} key,
+	 * this method compiles that file and runs the resulting main class instead.
 	 * <p>
 	 * The currently active {@link JavaService} is responsible for running the
 	 * class.
@@ -149,7 +151,9 @@ public class JavaEngine extends AbstractScriptEngine {
 	}
 
 	/**
-	 * Compiles and runs the specified {@code .java} class.
+	 * Compiles and runs the specified {@code .java} class. If a filename is set
+	 * in the engine scope bindings via the {@link ScriptEngine#FILENAME} key,
+	 * this method compiles that file and runs the resulting main class instead.
 	 * <p>
 	 * The currently active {@link JavaService} is responsible for running the
 	 * class.
@@ -171,12 +175,16 @@ public class JavaEngine extends AbstractScriptEngine {
 	}
 
 	/**
-	 * Compiles and runs the specified {@code .java} class.
+	 * Compiles and runs the specified {@code .java} class. If a filename is set
+	 * in the engine scope bindings via the {@link ScriptEngine#FILENAME} key,
+	 * this method compiles that file and returns its resulting main class
+	 * instead.
 	 * 
 	 * @param script the source code for a Java class
 	 * @return the compiled Java class as {@link Class}.
 	 */
 	public Class<?> compile(String script) throws ScriptException {
+		// get filename from engine scope bindings
 		final String path = (String) get(FILENAME);
 		File file = path == null ? null : new File(path);
 
@@ -244,7 +252,10 @@ public class JavaEngine extends AbstractScriptEngine {
 	}
 
 	/**
-	 * Compiles and runs the specified {@code .java} class.
+	 * Compiles and runs the specified {@code .java} class. If a filename is set
+	 * in the engine scope bindings via the {@link ScriptEngine#FILENAME} key,
+	 * this method compiles that file and returns its resulting main class
+	 * instead.
 	 *
 	 * @param reader the reader producing the source code for a Java class
 	 * @return the compiled Java class as {@link Class}.
