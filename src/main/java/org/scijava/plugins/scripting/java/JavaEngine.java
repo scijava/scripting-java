@@ -46,7 +46,6 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes.Name;
@@ -896,7 +895,7 @@ public class JavaEngine extends AbstractScriptEngine {
 			return null;
 		}
 
-		CharBuffer buffer = CharBuffer.allocate(1024);
+		char[] buffer = new char[1024];
 		StringBuilder builder = new StringBuilder();
 
 		int read;
