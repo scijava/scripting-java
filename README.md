@@ -1,3 +1,5 @@
+![](http://jenkins.imagej.net/job/scripting-Java/lastBuild/badge/icon)
+
 # Java Scripting
 
 This library provides a
