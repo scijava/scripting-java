@@ -48,6 +48,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
 import org.scijava.object.ObjectService;
+import org.scijava.script.AbstractScriptLanguageTest;
 import org.scijava.script.ScriptLanguage;
 import org.scijava.script.ScriptService;
 import org.scijava.test.TestUtils;
@@ -57,7 +58,12 @@ import org.scijava.test.TestUtils;
  * 
  * @author Johannes Schindelin
  */
-public class JavaEngineTest {
+public class JavaEngineTest extends AbstractScriptLanguageTest {
+
+	@Test
+	public void testDiscovery() {
+		assertDiscovered(JavaScriptLanguage.class);
+	}
 
 	@Before
 	public void assumeJavaC() {
