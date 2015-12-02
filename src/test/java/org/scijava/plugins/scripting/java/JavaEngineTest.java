@@ -167,6 +167,32 @@ public class JavaEngineTest extends AbstractScriptLanguageTest {
 		assertTrue(result);
 	}
 
+	@Test
+	public void testAnnotations() {
+		boolean result = true;
+		final String source = "" + //
+				"import org.scijava.command.Command;\n" + //
+				"import org.scijava.plugin.Plugin;\n" + //
+				"@Plugin(type = Command.class)\n" + //
+				"public class PluginTest implements Command {\n" + //
+				"\t@Override\n" + //
+				"\tpublic void run() {\n" + //
+				"\t\tSystem.out.println(\"I am a plugin!\");\n" + //
+				"\t}\n" + //
+				"}";
+
+		final ScriptEngine miniMaven = miniMaven();
+		try {
+			miniMaven.eval(source);
+		}
+		catch (final ScriptException e) {
+			e.printStackTrace();
+			result = false;
+		}
+
+		assertTrue(result);
+	}
+
 	// -- helper functions
 
 	private File makeMinimalProject() throws IOException {
