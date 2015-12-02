@@ -222,12 +222,9 @@ public class JavaEngine extends AbstractScriptEngine {
 				for (int i = 0; i < urls.length; i++)
 					urls[i] =
 						new URL("file:" + paths[i] + (paths[i].endsWith(".jar") ? "" : "/"));
-				URLClassLoader classLoader =
-					new URLClassLoader(urls, Thread.currentThread()
-						.getContextClassLoader());
 
-				// needed for annotation processing
-				Thread.currentThread().setContextClassLoader(classLoader);
+				final URLClassLoader classLoader =  new URLClassLoader(urls, Thread.currentThread()
+						.getContextClassLoader());
 
 				// load main class
 				return classLoader.loadClass(mainClass);
