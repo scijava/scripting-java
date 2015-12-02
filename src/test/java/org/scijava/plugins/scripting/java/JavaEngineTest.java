@@ -70,7 +70,7 @@ public class JavaEngineTest extends AbstractScriptLanguageTest {
 		boolean found = false;
 		try {
 			final ClassLoader classLoader = getClass().getClassLoader();
-			found = classLoader.loadClass("com.sun.tools.javac.Main") != null;
+			found = classLoader.loadClass("javax.tools.ToolProvider") != null;
 		}
 		catch (final Throwable t) {
 			// NB: No action needed.
