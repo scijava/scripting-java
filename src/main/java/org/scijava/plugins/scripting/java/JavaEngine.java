@@ -470,8 +470,8 @@ public class JavaEngine extends AbstractScriptEngine {
 		 * @return the created {@link BuildEnvironment}.
 		 */
 		private BuildEnvironment createBuildEnvironment() {
-			boolean verbose = "true".equals(get("verbose"));
-			boolean debug = "true".equals(get("debug"));
+			boolean verbose = "true".equals(get("verbose")) || log().isInfo();
+			boolean debug = "true".equals(get("debug")) || log().isDebug();
 			return new BuildEnvironment(err, true, verbose, debug);
 		}
 
