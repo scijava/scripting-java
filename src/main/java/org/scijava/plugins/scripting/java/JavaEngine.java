@@ -550,8 +550,9 @@ public class JavaEngine extends AbstractScriptEngine {
 			Pattern.compile(".*public class ([a-zA-Z0-9_]*).*");
 		final BufferedReader reader = new BufferedReader(new FileReader(file));
 		for (;;) {
-			String line = reader.readLine().trim();
+			String line = reader.readLine();
 			if (line == null) break;
+			line = line.trim();
 			outerLoop:
 			while (line.startsWith("/*")) {
 				int end = line.indexOf("*/", 2);
