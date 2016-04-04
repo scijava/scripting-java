@@ -188,50 +188,43 @@ public class JavaEngine extends AbstractScriptEngine {
 		File file = path == null ? null : new File(path);
 
 		final Writer writer = getContext().getErrorWriter();
+		final Builder builder = new Builder();
 		try {
-
-			final Builder builder;
-
 			if (file != null && file.exists()) {
 				// if the filename set in engine scope bindings is valid,
 				// ignore the given script and use that file instead.
-				builder = new Builder(file, writer);
+				builder.initialize(file, writer);
 			}
 			else {
 				// script may be null, but then we cannot create a StringReader for it,
 				// therefore null is passed if script is null.
 				final Reader reader =
 					(script == null) ? null : new StringReader(script);
-				builder = new Builder(reader, writer);
+				builder.initialize(reader, writer);
 			}
 			final MavenProject project = builder.project;
 			String mainClass = builder.mainClass;
 
-			try {
-				project.build(true);
+			project.build(true);
+			if (mainClass == null) {
+				mainClass = project.getMainClass();
 				if (mainClass == null) {
-					mainClass = project.getMainClass();
-					if (mainClass == null) {
-						throw new ScriptException("No main class found for file " + file);
-					}
+					throw new ScriptException("No main class found for file " + file);
 				}
-
-				// make class loader
-				String[] paths = project.getClassPath(false).split(File.pathSeparator);
-				URL[] urls = new URL[paths.length];
-				for (int i = 0; i < urls.length; i++)
-					urls[i] =
-						new URL("file:" + paths[i] + (paths[i].endsWith(".jar") ? "" : "/"));
-
-				final URLClassLoader classLoader =  new URLClassLoader(urls, Thread.currentThread()
-						.getContextClassLoader());
-
-				// load main class
-				return classLoader.loadClass(mainClass);
 			}
-			finally {
-				builder.cleanup();
-			}
+
+			// make class loader
+			String[] paths = project.getClassPath(false).split(File.pathSeparator);
+			URL[] urls = new URL[paths.length];
+			for (int i = 0; i < urls.length; i++)
+				urls[i] =
+					new URL("file:" + paths[i] + (paths[i].endsWith(".jar") ? "" : "/"));
+
+			final URLClassLoader classLoader =  new URLClassLoader(urls, Thread.currentThread()
+					.getContextClassLoader());
+
+			// load main class
+			return classLoader.loadClass(mainClass);
 		}
 		catch (Exception e) {
 			if (writer != null) {
@@ -243,6 +236,9 @@ public class JavaEngine extends AbstractScriptEngine {
 				if (e instanceof ScriptException) throw (ScriptException) e;
 				throw new ScriptException(e);
 			}
+		}
+		finally {
+			builder.cleanup();
 		}
 		return null;
 	}
@@ -292,19 +288,18 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * @see #compile(String)
 	 */
 	public void compile(final File file, final Writer errorWriter) {
+		final Writer writer =
+			(errorWriter == null) ? getContext().getErrorWriter() : errorWriter;
+		final Builder builder = new Builder();
 		try {
-			final Writer writer =
-				(errorWriter == null) ? getContext().getErrorWriter() : errorWriter;
-			final Builder builder = new Builder(file, writer);
-			try {
-				builder.project.build();
-			}
-			finally {
-				builder.cleanup();
-			}
+			builder.initialize(file, writer);
+			builder.project.build();
 		}
 		catch (Throwable t) {
 			printOrThrow(t, errorWriter);
+		}
+		finally {
+			builder.cleanup();
 		}
 	}
 
@@ -319,21 +314,20 @@ public class JavaEngine extends AbstractScriptEngine {
 	public void makeJar(final File file, final boolean includeSources,
 		final File output, final Writer errorWriter)
 	{
+		final Builder builder = new Builder();
 		try {
-			final Builder builder = new Builder(file, errorWriter);
-			try {
-				builder.project.build(true, true, includeSources);
-				final File target = builder.project.getTarget();
-				if (output != null && !target.equals(output)) {
-					BuildEnvironment.copyFile(target, output);
-				}
-			}
-			finally {
-				builder.cleanup();
+			builder.initialize(file, errorWriter);
+			builder.project.build(true, true, includeSources);
+			final File target = builder.project.getTarget();
+			if (output != null && !target.equals(output)) {
+				BuildEnvironment.copyFile(target, output);
 			}
 		}
 		catch (Throwable t) {
 			printOrThrow(t, errorWriter);
+		}
+		finally {
+			builder.cleanup();
 		}
 	}
 
@@ -368,14 +362,17 @@ public class JavaEngine extends AbstractScriptEngine {
 	 */
 	private class Builder {
 
-		private final PrintStream err;
-		private final File temporaryDirectory;
+		private PrintStream err;
+		private File temporaryDirectory;
 		private String mainClass;
 		private MavenProject project;
 
 		/**
 		 * Constructs a wrapper around a possibly project for a source or maven
 		 * project file.
+		 * <p>
+		 * This method is intended to be called only once.
+		 * </p>
 		 * 
 		 * @param file the {@code .java} file to build (or null, if {@code reader}
 		 *          is set).
@@ -388,7 +385,7 @@ public class JavaEngine extends AbstractScriptEngine {
 		 * @throws TransformerException
 		 * @throws TransformerFactoryConfigurationError
 		 */
-		private Builder(final File file, final Writer errorWriter)
+		private void initialize(final File file, final Writer errorWriter)
 			throws ScriptException, IOException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException, TransformerException,
 			TransformerFactoryConfigurationError
@@ -411,6 +408,9 @@ public class JavaEngine extends AbstractScriptEngine {
 		/**
 		 * Constructs a wrapper around a possibly temporary project for source code
 		 * generated by a Reader.
+		 * <p>
+		 * This method is intended to be called only once.
+		 * </p>
 		 * 
 		 * @param reader provides the Java source if {@code file} is {@code null}
 		 * @param errorWriter where to write the error output.
@@ -422,7 +422,7 @@ public class JavaEngine extends AbstractScriptEngine {
 		 * @throws TransformerException
 		 * @throws TransformerFactoryConfigurationError
 		 */
-		private Builder(final Reader reader, final Writer errorWriter)
+		private void initialize(final Reader reader, final Writer errorWriter)
 			throws ScriptException, IOException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException, TransformerException,
 			TransformerFactoryConfigurationError
