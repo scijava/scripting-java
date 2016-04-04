@@ -87,6 +87,10 @@
 		<url>http://jenkins.imagej.net/job/scripting-Java/</url>
 	</ciManagement>
 
+	<properties>
+		<scijava.jvm.version>1.8</scijava.jvm.version>
+	</properties>
+
 	<dependencies>
 		<!-- SciJava dependencies -->
 		<dependency>
