@@ -73,6 +73,7 @@ import org.scijava.minimaven.Coordinate;
 import org.scijava.minimaven.MavenProject;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginService;
+import org.scijava.run.RunService;
 import org.scijava.script.AbstractScriptEngine;
 import org.scijava.util.FileUtils;
 import org.scijava.util.LineOutputStream;
@@ -114,14 +115,14 @@ public class JavaEngine extends AbstractScriptEngine {
 	private CommandService commandService;
 
 	@Parameter
-	private JavaService javaService;
+	private RunService runService;
 
 	/**
 	 * Compiles and runs the specified {@code .java} class. If a filename is set
 	 * in the engine scope bindings via the {@link ScriptEngine#FILENAME} key,
 	 * this method compiles that file and runs the resulting main class instead.
 	 * <p>
-	 * The currently active {@link JavaService} is responsible for running the
+	 * The currently active {@link RunService} is responsible for running the
 	 * class.
 	 * </p>
 	 * 
@@ -133,7 +134,7 @@ public class JavaEngine extends AbstractScriptEngine {
 		final Writer writer = getContext().getErrorWriter();
 		try {
 			final Class<?> clazz = compile(script);
-			javaService.run(clazz);
+			runService.run(clazz);
 		}
 		catch (Exception e) {
 			if (writer != null) {

@@ -48,6 +48,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
 import org.scijava.object.ObjectService;
+import org.scijava.run.RunService;
 import org.scijava.script.AbstractScriptLanguageTest;
 import org.scijava.script.ScriptLanguage;
 import org.scijava.script.ScriptService;
@@ -273,7 +274,7 @@ public class JavaEngineTest extends AbstractScriptLanguageTest {
 
 	private ScriptEngine miniMaven() {
 		final Context context =
-			new Context(ScriptService.class, ObjectService.class, JavaService.class);
+			new Context(ScriptService.class, ObjectService.class, RunService.class);
 		final ObjectService objectService = context.getService(ObjectService.class);
 		final ScriptLanguage java =
 			objectService.getObjects(JavaScriptLanguage.class).get(0);
