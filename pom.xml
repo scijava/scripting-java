@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>10.1.0</version>
+		<version>12.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -16,6 +16,10 @@
 	<description>JSR-223-compliant Java scripting language plugin.</description>
 	<url>http://scijava.org/</url>
 	<inceptionYear>2008</inceptionYear>
+	<organization>
+		<name>SciJava</name>
+		<url>http://scijava.org/</url>
+	</organization>
 	<licenses>
 		<license>
 			<name>Simplified BSD License</name>
@@ -61,6 +65,16 @@
 		</contributor>
 	</contributors>
 
+	<mailingLists>
+		<mailingList>
+			<name>SciJava</name>
+			<subscribe>https://groups.google.com/group/scijava</subscribe>
+			<unsubscribe>https://groups.google.com/group/scijava</unsubscribe>
+			<post>scijava.com</post>
+			<archive>https://groups.google.com/group/scijava</archive>
+		</mailingList>
+	</mailingLists>
+
 	<scm>
 		<connection>scm:git:git://github.com/scijava/scripting-java</connection>
 		<developerConnection>scm:git:git@github.com:scijava/scripting-java</developerConnection>
@@ -77,7 +91,11 @@
 	</ciManagement>
 
 	<properties>
-		<scijava.jvm.version>1.8</scijava.jvm.version>
+		<package-name>org.scijava.plugins.scripting.java</package-name>
+		<license.licenseName>bsd_2</license.licenseName>
+		<license.copyrightOwners>Board of Regents of the University of
+Wisconsin-Madison, Broad Institute of MIT and Harvard, and Max Planck
+Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 	</properties>
 
 	<dependencies>
@@ -104,29 +122,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<packageName>org.scijava.plugins.scripting.java</packageName>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<configuration>
-					<licenseName>bsd_2</licenseName>
-					<organizationName>Board of Regents of the University of
-Wisconsin-Madison, Broad Institute of MIT and Harvard, and Max Planck
-Institute of Molecular Cell Biology and Genetics.</organizationName>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
