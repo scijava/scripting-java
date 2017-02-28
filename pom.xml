@@ -86,8 +86,8 @@
 		<url>https://github.com/scijava/scripting-java/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/scripting-Java/</url>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/scijava/scripting-java</url>
 	</ciManagement>
 
 	<properties>

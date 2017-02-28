@@ -1,4 +1,4 @@
-[![](http://jenkins.imagej.net/job/scripting-Java/lastBuild/badge/icon)](http://jenkins.imagej.net/job/scripting-Java/)
+[![](https://travis-ci.org/scijava/scripting-java.svg?branch=master)](https://travis-ci.org/scijava/scripting-java)
 
 # Java Scripting
 
