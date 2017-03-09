@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>12.0.0</version>
+		<version>14.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -14,7 +14,7 @@
 
 	<name>SciJava Scripting: Java</name>
 	<description>JSR-223-compliant Java scripting language plugin.</description>
-	<url>http://scijava.org/</url>
+	<url>https://github.com/scijava/scripting-java</url>
 	<inceptionYear>2008</inceptionYear>
 	<organization>
 		<name>SciJava</name>
