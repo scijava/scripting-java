@@ -155,7 +155,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	 * in the engine scope bindings via the {@link ScriptEngine#FILENAME} key,
 	 * this method compiles that file and runs the resulting main class instead.
 	 * <p>
-	 * The currently active {@link JavaService} is responsible for running the
+	 * The currently active {@link RunService} is responsible for running the
 	 * class.
 	 * </p>
 	 * 
