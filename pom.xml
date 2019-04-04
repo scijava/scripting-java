@@ -18,7 +18,7 @@
 	<inceptionYear>2008</inceptionYear>
 	<organization>
 		<name>SciJava</name>
-		<url>http://scijava.org/</url>
+		<url>https://scijava.org/</url>
 	</organization>
 	<licenses>
 		<license>
@@ -31,7 +31,7 @@
 		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
-			<url>http://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/User:Rueden</url>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -45,13 +45,13 @@
 	<contributors>
 		<contributor>
 			<name>Johannes Schindelin</name>
-			<url>http://imagej.net/User:Schindelin</url>
+			<url>https://imagej.net/User:Schindelin</url>
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
 		<contributor>
 			<name>Gabriel Einsdorf</name>
-			<url>http://imagej.net/User:Gab1one</url>
+			<url>https://imagej.net/User:Gab1one</url>
 			<properties><id>gab1one</id></properties>
 		</contributor>
 		<contributor>
@@ -60,7 +60,7 @@
 		</contributor>
 		<contributor>
 			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
+			<url>https://imagej.net/User:Hinerm</url>
 			<properties><id>hinerm</id></properties>
 		</contributor>
 	</contributors>
