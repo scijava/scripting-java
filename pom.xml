@@ -76,7 +76,7 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/scijava/scripting-java</connection>
+		<connection>scm:git:https://github.com/scijava/scripting-java</connection>
 		<developerConnection>scm:git:git@github.com:scijava/scripting-java</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/scijava/scripting-java</url>
