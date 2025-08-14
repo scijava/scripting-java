@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>scripting-java</artifactId>
-	<version>0.4.2-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<name>SciJava Scripting: Java</name>
 	<description>JSR-223-compliant Java scripting language plugin.</description>
@@ -96,9 +96,6 @@
 		<license.copyrightOwners>Board of Regents of the University of
 Wisconsin-Madison, Broad Institute of MIT and Harvard, and Max Planck
 Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
-
-		<!-- NB: Deploy releases to the SciJava Maven repository. -->
-		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<classgraph.version>4.8.172</classgraph.version>
 	</properties>
