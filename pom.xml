@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>scripting-java</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<name>SciJava Scripting: Java</name>
 	<description>JSR-223-compliant Java scripting language plugin.</description>
@@ -78,7 +78,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/scijava/scripting-java</connection>
 		<developerConnection>scm:git:git@github.com:scijava/scripting-java</developerConnection>
-		<tag>HEAD</tag>
+		<tag>scripting-java-1.0.0</tag>
 		<url>https://github.com/scijava/scripting-java</url>
 	</scm>
 	<issueManagement>
