@@ -759,7 +759,7 @@ public class JavaEngine extends AbstractScriptEngine {
 	{
 		Element child = document.createElement(tag);
 		if (content != null) child
-			.appendChild(document.createCDATASection(content));
+			.appendChild(document.createTextNode(content));
 		parent.appendChild(child);
 		return child;
 	}
