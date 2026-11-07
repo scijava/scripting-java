@@ -1,4 +1,4 @@
-[![](https://github.com/scijava/scripting-java/actions/workflows/build.yml/badge.svg)](https://github.com/scijava/scripting-java/actions/workflows/build.yml)
+[![Build Status](https://github.com/scijava/scripting-java/actions/workflows/build.yml/badge.svg)](https://github.com/scijava/scripting-java/actions/workflows/build.yml)
 
 # Java Scripting
 
